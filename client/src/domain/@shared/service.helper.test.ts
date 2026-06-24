@@ -34,7 +34,7 @@ describe('handleServiceError', () => {
         notification: { error: vi.fn() },
         message: { error: vi.fn() },
         modal: { error: vi.fn() },
-    });
+    }) as any;
 
     it('calls notification.error with error.message when response is an Error', () => {
         const app = makeApp();
