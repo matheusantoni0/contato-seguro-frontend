@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 
 import { Table } from '@domain/@shared/Table';
 import type { Person } from '../person.type';
+import { obfuscateCpf } from '../person.helper';
 import { PeopleActionsCell } from './PeopleActionsCell';
 
 type Props = {
@@ -18,6 +19,7 @@ const COLUMNS: TableColumnsType<Person.Model> = [
     {
         title: 'CPF',
         dataIndex: 'cpf',
+        render: (cpf: string) => obfuscateCpf(cpf),
     },
     {
         title: 'E-mail',

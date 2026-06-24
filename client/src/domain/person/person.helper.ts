@@ -51,3 +51,18 @@ export const makePersonErrorMessage: MakeMessage = (
     // 4. Fallback genérico (evita vazar stacktrace de banco)
     return 'Não foi possível concluir o cadastro. Verifique os dados e tente novamente.';
 };
+
+/**
+ * Aplica máscara de ofuscação compatível com a LGPD.
+ * Retorna os 3 primeiros dígitos e esconde o restante (123.***.***-**).
+ */
+export const obfuscateCpf = (cpf: string): string => {
+    if (!cpf) return '-';
+    
+    const clean = cpf.replace(/\D/g, '');
+    
+    if (clean.length !== 11) return cpf;
+    
+    const prefix = clean.substring(0, 3);
+    return `${prefix}.***.***-**`;
+};

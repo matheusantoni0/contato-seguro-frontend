@@ -3,12 +3,13 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 
 import { App, Divider, Form, Modal } from 'antd';
+import { cpf as cpfValidator } from 'cpf-cnpj-validator';
 
 import { handleServiceError, hasServiceError } from '@domain/@shared/service.helper';
 import { sleep } from '@domain/@shared/sleep';
 
 import { updatePerson } from '../api/update-person.service';
-import { makePersonErrorMessage } from '../person.helper';
+import { makePersonErrorMessage, obfuscateCpf } from '../person.helper';
 import { usePeopleContext } from '../People.context';
 import { PersonFields, type Values } from './PersonFields';
 
@@ -29,8 +30,11 @@ export function EditPersonModal() {
 
     const [form] = Form.useForm<Values>();
 
+    const obfuscatedCpf = obfuscateCpf(person.cpf);
+
     const initialValues = {
         ...person,
+        cpf: obfuscatedCpf,
         birth_date: dayjs(person.birth_date),
     };
 
@@ -42,8 +46,13 @@ export function EditPersonModal() {
     const onFinish = async (values: Values) => {
         setIsSending(true);
 
+        const rawCpf = values.cpf === obfuscatedCpf
+            ? person.cpf
+            : cpfValidator.strip(values.cpf);
+
         const apiValues = {
             ...values,
+            cpf: rawCpf,
             birth_date: values.birth_date.format('YYYY-MM-DD'),
         };
 
@@ -80,7 +89,7 @@ export function EditPersonModal() {
                 autoComplete="off"
                 initialValues={initialValues}
             >
-                <PersonFields />
+                <PersonFields originalCpfObfuscated={obfuscatedCpf} />
             </Form>
         </Modal>
     );

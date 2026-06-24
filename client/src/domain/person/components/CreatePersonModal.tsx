@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { App, Divider, Form, Modal } from 'antd';
+import { cpf as cpfValidator } from 'cpf-cnpj-validator';
 
 import { handleServiceError, hasServiceError } from '@domain/@shared/service.helper';
 import { sleep } from '@domain/@shared/sleep';
@@ -26,6 +27,7 @@ export function CreatePersonModal() {
 
         const apiValues = {
             ...values,
+            cpf: cpfValidator.strip(values.cpf),
             birth_date: values.birth_date.format('YYYY-MM-DD'),
         };
 

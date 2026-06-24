@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 
 import { DatePicker, Form, Input } from 'antd';
 
+import { cpf as cpfValidator } from 'cpf-cnpj-validator';
 import type { Dayjs } from 'dayjs';
 
 export type Values = {
@@ -11,7 +12,23 @@ export type Values = {
     birth_date: Dayjs;
 };
 
-export function PersonFields() {
+export const cpfMask = (value: string | undefined, originalCpfObfuscated?: string) => {
+    if (!value) return '';
+    if (originalCpfObfuscated && value === originalCpfObfuscated) return value;
+    
+    let v = value.replace(/\D/g, '');
+    if (v.length > 11) v = v.substring(0, 11);
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    return v;
+};
+
+export type PersonFieldsProps = {
+    originalCpfObfuscated?: string;
+};
+
+export function PersonFields({ originalCpfObfuscated }: PersonFieldsProps = {}) {
     return (
         <Fragment>
             <Form.Item<Values>
@@ -25,13 +42,21 @@ export function PersonFields() {
             <Form.Item<Values>
                 name="cpf"
                 label="CPF"
+                normalize={(val) => cpfMask(val, originalCpfObfuscated)}
                 rules={[
                     { required: true, message: 'Por favor, digite o CPF.' },
-                    { len: 11, message: 'O CPF deve ter exatamente 11 dígitos.' },
-                    { pattern: /^\d{11}$/, message: 'O CPF deve conter apenas números.' },
+                    {
+                        validator: async (_, value) => {
+                            if (!value) return;
+                            if (originalCpfObfuscated && value === originalCpfObfuscated) return;
+                            if (!cpfValidator.isValid(value)) {
+                                throw new Error('CPF inválido. Verifique o número informado e tente novamente.');
+                            }
+                        },
+                    },
                 ]}
             >
-                <Input placeholder="Somente números, sem pontuação" maxLength={11} />
+                <Input placeholder="Somente números, sem pontuação" maxLength={14} />
             </Form.Item>
 
             <Form.Item<Values>
