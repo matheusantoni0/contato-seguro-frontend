@@ -2,18 +2,27 @@ import { Fragment } from 'react';
 
 import { Button, Row, Typography } from 'antd';
 
+import { Show } from '@domain/@shared/Show';
+import { CreatePersonModal } from '@domain/person/components/CreatePersonModal';
+import { EditPersonModal } from '@domain/person/components/EditPersonModal';
 import { PeopleTable } from '@domain/person/components/PeopleTable';
 import { PeopleContextProvider } from '@domain/person/People.context';
 
 export function People() {
     return (
         <PeopleContextProvider>
-            {({ people, isLoading, setIsCreateModalVisible }) => (
+            {({
+                people,
+                isLoading,
+                setIsCreateModalVisible,
+                isCreateModalVisible,
+                isEditModalVisible,
+            }) => (
                 <Fragment>
                     <main>
                         <Row justify="space-between" align="middle">
                             <Typography.Title level={3}>
-                                Gerenciamento de Pessoas
+                                Pessoas
                             </Typography.Title>
 
                             <Button
@@ -29,6 +38,14 @@ export function People() {
                             isLoading={isLoading}
                         />
                     </main>
+
+                    <Show when={isCreateModalVisible}>
+                        <CreatePersonModal />
+                    </Show>
+
+                    <Show when={isEditModalVisible}>
+                        <EditPersonModal />
+                    </Show>
                 </Fragment>
             )}
         </PeopleContextProvider>
