@@ -12,9 +12,10 @@ type Props = {
     isVisible: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    customSubmit?: (values: Involvement.Create) => boolean;
 };
 
-export function LinkInvolvementModal({ recordId, isVisible, onClose, onSuccess }: Props) {
+export function LinkInvolvementModal({ recordId, isVisible, onClose, onSuccess, customSubmit }: Props) {
     const [isSending, setIsSending] = useState(false);
     const [people, setPeople] = useState<Person.Model[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -45,6 +46,14 @@ export function LinkInvolvementModal({ recordId, isVisible, onClose, onSuccess }
     }, [isVisible, app]);
 
     const onFinish = async (values: Involvement.Create) => {
+        if (customSubmit) {
+            const success = customSubmit(values);
+            if (success) {
+                form.resetFields();
+            }
+            return;
+        }
+
         setIsSending(true);
 
         const response = await createInvolvement(recordId, values);

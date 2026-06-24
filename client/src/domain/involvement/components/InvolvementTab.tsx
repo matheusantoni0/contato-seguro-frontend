@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, Fragment } from 'react';
-import { Row, Button, Typography, Popconfirm, App } from 'antd';
+import { Row, Button, Typography, Popconfirm, App, Skeleton, type TableColumnsType } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Table } from '@domain/@shared/Table';
 import { handleServiceError, hasServiceError } from '@domain/@shared/service.helper';
@@ -13,12 +13,14 @@ type Props = {
     recordId: number;
 };
 
-const INVOLVEMENT_TYPE_LABELS = {
+const INVOLVEMENT_TYPE_LABELS: Record<string, string> = {
     whistleblower: 'Denunciante / Relator',
     witness: 'Testemunha',
     victim: 'Vítima',
     denounced: 'Denunciado',
 };
+
+const SKELETON_DATA = Array.from({ length: 3 }).map((_, i) => ({ id: i }));
 
 export function InvolvementTab({ recordId }: Props) {
     const [involvements, setInvolvements] = useState<Involvement.Model[]>([]);
@@ -83,6 +85,11 @@ export function InvolvementTab({ recordId }: Props) {
         },
     ];
 
+    const skeletonColumns: TableColumnsType<{ id: number }> = columns.map(col => ({
+        ...col,
+        render: () => <Skeleton.Input active size="small" block />,
+    })) as TableColumnsType<{ id: number }>;
+
     return (
         <Fragment>
             <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
@@ -94,11 +101,18 @@ export function InvolvementTab({ recordId }: Props) {
                 </Button>
             </Row>
 
-            <Table
-                dataSource={involvements}
-                columns={columns}
-                loading={isLoading}
-            />
+            {isLoading ? (
+                <Table
+                    columns={skeletonColumns}
+                    dataSource={SKELETON_DATA}
+                />
+            ) : (
+                <Table
+                    dataSource={involvements}
+                    columns={columns}
+                    loading={false}
+                />
+            )}
 
             <LinkInvolvementModal
                 recordId={recordId}
