@@ -8,6 +8,7 @@ import { CompaniesContextProvider } from '@domain/company/Companies.context';
 import { CreateRecordModal } from '@domain/record/components/CreateRecordModal';
 import { EditRecordModal } from '@domain/record/components/EditRecordModal';
 import { RecordsActionsCell } from '@domain/record/components/RecordsActionsCell';
+import { IsAnonymousTag } from '@domain/involvement/components/IsAnonymousTag';
 import type { Record } from '@domain/record/record.type';
 import { RecordsContextProvider } from '@domain/record/Records.context';
 
@@ -32,6 +33,10 @@ const COLUMNS: TableColumnsType<Record.Model> = [
         title: 'Status',
         dataIndex: 'status',
         render: value => STATUS_LABELS[value as Record.Status] ?? value,
+    },
+    {
+        title: 'Anonimato',
+        render: (_, record) => <IsAnonymousTag recordId={record.id} />,
     },
     {
         render: (_, record) => <RecordsActionsCell record={record} />,
