@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { App, Divider, Form, Modal } from 'antd';
+import { App, Divider, Form, Modal, Tabs } from 'antd';
 
 import { handleServiceError, hasServiceError } from '@domain/@shared/service.helper';
 import { sleep } from '@domain/@shared/sleep';
@@ -9,6 +9,7 @@ import { useCompaniesContext } from '@domain/company/Companies.context';
 import { updateRecord } from '../api/update-record.service';
 import { useRecordsContext } from '../Records.context';
 import { RecordFields, type Values } from './RecordFields';
+import { InvolvementTab } from '@domain/involvement/components/InvolvementTab';
 
 export function EditRecordModal() {
     const [isSending, setIsSending] = useState(false);
@@ -62,16 +63,32 @@ export function EditRecordModal() {
         >
             <Divider />
 
-            <Form
-                form={form}
-                onFinish={onFinish}
-                name="editRecord"
-                layout="vertical"
-                autoComplete="off"
-                initialValues={record}
-            >
-                <RecordFields companies={companies} />
-            </Form>
+            <Tabs
+                defaultActiveKey="1"
+                items={[
+                    {
+                        key: '1',
+                        label: 'Dados do Relato',
+                        children: (
+                            <Form
+                                form={form}
+                                onFinish={onFinish}
+                                name="editRecord"
+                                layout="vertical"
+                                autoComplete="off"
+                                initialValues={record}
+                            >
+                                <RecordFields companies={companies} />
+                            </Form>
+                        ),
+                    },
+                    {
+                        key: '2',
+                        label: 'Envolvidos',
+                        children: <InvolvementTab recordId={record.id} />,
+                    },
+                ]}
+            />
         </Modal>
     );
 }
