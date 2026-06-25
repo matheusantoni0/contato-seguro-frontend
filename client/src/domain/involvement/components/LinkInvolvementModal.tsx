@@ -148,7 +148,6 @@ export function LinkInvolvementModal({ recordId, isVisible, onClose, onSuccess, 
                 onClose={() => setIsCreatePersonModalVisible(false)}
                 onSuccess={() => {
                     setIsCreatePersonModalVisible(false);
-                    app.message.success('Pessoa cadastrada com sucesso');
                     fetchInitialData(app, { current: true });
                 }}
             />

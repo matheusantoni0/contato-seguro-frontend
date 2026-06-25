@@ -56,6 +56,7 @@ export function CreatePersonModal({ onClose, onSuccess }: Props) {
             return handleServiceError(app, response, makePersonErrorMessage);
 
         close();
+        app.message.success('Pessoa cadastrada com sucesso');
         if (onSuccess) onSuccess();
         if (fetchPeople) fetchPeople();
     };

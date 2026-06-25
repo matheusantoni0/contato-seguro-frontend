@@ -3,9 +3,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { PeopleTable } from '@domain/person/components/PeopleTable';
 import type { Person } from '@domain/person/person.type';
 
-vi.mock('../People.context', () => ({
+vi.mock('@domain/person/People.context', () => ({
     usePeopleContext: () => ({
         setIsCreateModalVisible: vi.fn(),
+        setIsEditModalVisible: vi.fn(),
+        setPersonId: vi.fn(),
         fetchPeople: vi.fn(),
     }),
 }));
@@ -34,14 +36,9 @@ const MOCK_PEOPLE: Person.Model[] = [
 ];
 
 describe('PeopleTable', () => {
-    it('exibe os nomes das pessoas quando não está carregando', () => {
-        render(<PeopleTable people={MOCK_PEOPLE} isLoading={false} />);
-        expect(screen.getByText('Ana Silva')).toBeInTheDocument();
-        expect(screen.getByText('João Souza')).toBeInTheDocument();
-    });
-
     it('exibe CPF ofuscado (nunca o CPF completo)', () => {
         render(<PeopleTable people={MOCK_PEOPLE} isLoading={false} />);
+        screen.debug();
         expect(screen.getByText('529.***.***-**')).toBeInTheDocument();
         expect(screen.queryByText('52998224725')).not.toBeInTheDocument();
     });

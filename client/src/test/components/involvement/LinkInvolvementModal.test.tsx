@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, server } from '../../../test/setup';
 import { personHandlers } from '../../../test/handlers/person.handlers';
-import { LinkInvolvementModal } from './LinkInvolvementModal';
+import { LinkInvolvementModal } from '@domain/involvement/components/LinkInvolvementModal';
 
 const RECORD_ID = 42;
 
