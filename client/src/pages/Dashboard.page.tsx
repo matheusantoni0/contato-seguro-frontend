@@ -139,7 +139,7 @@ function DashboardView({ records, companies, peopleCount, isLoading }: Dashboard
             </Row>
 
             <section>
-                <Typography.Title level={5} style={{ marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: 12, color: '#8c8c8c' }}>
+                <Typography.Title level={5} style={{ paddingTop: 16, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: 12, color: '#8c8c8c' }}>
                     Casos que Necessitam Atenção
                 </Typography.Title>
                 <CriticalReportsTable records={records} />
@@ -159,7 +159,7 @@ function DashboardView({ records, companies, peopleCount, isLoading }: Dashboard
                     </Col>
                     <Col xs={24} sm={12} lg={6}>
                         <MetricCard
-                            title="Pessoas Cadastradas"
+                            title="Pessoas"
                             value={peopleCount}
                             prefix={<UserOutlined />}
                         />

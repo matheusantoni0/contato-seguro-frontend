@@ -16,7 +16,7 @@ export function Root({ sider, content }: Props) {
     const [collapsed, setCollapsed] = useState(false);
 
     return (
-        <AntdLayout style={{ minHeight: '100vh' }} hasSider>
+        <AntdLayout style={{ height: '100vh', overflow: 'hidden', background: '#fafafa' }} hasSider>
             {sider({ collapsed, onCollapse: value => setCollapsed(value) })}
 
             {content()}
