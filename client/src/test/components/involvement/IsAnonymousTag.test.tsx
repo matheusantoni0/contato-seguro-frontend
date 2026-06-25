@@ -2,8 +2,8 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { renderWithProviders, server } from '../../../test/setup';
-import { IsAnonymousTag } from './IsAnonymousTag';
 import { getBaseUrl } from '@domain/@shared/request';
+import { IsAnonymousTag } from '@domain/involvement/components/IsAnonymousTag';
 
 function makeInvolvementsHandler(isAnonymous: boolean) {
     return http.get(`${getBaseUrl()}/records/1/involvements`, () =>

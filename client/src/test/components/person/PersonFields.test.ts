@@ -1,5 +1,5 @@
+import { cpfMask } from '@domain/person/components/PersonFields';
 import { describe, expect, it } from 'vitest';
-import { cpfMask } from './PersonFields';
 
 describe('cpfMask', () => {
     it('retorna string vazia quando value é undefined', () => {

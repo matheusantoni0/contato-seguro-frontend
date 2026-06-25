@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, server } from '../../../test/setup';
 import { involvementHandlers } from '../../../test/handlers/involvement.handlers';
-import { InvolvementTab } from './InvolvementTab';
+import { InvolvementTab } from '@domain/involvement/components/InvolvementTab';
 
 const RECORD_ID = 42;
 

@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { PeopleTable } from './PeopleTable';
-import type { Person } from '../person.type';
-import React from 'react';
+import { PeopleTable } from '@domain/person/components/PeopleTable';
+import type { Person } from '@domain/person/person.type';
 
 vi.mock('../People.context', () => ({
     usePeopleContext: () => ({
