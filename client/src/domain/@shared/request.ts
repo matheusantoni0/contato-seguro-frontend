@@ -1,7 +1,9 @@
 type Route = `/${string}`;
 type Method = 'get' | 'post' | 'patch' | 'put' | 'delete';
 
-export const BASE_URL = import.meta.env.VITE_API_URL;
+export function getBaseUrl() {
+    return import.meta.env.VITE_API_URL;
+}
 
 const DEFAULT_HEADERS = {
     Accept: 'application/json',
@@ -9,7 +11,7 @@ const DEFAULT_HEADERS = {
 };
 
 async function call(route: Route, method: Method, data: unknown) {
-    const input: RequestInfo = BASE_URL + route;
+    const input: RequestInfo = getBaseUrl() + route;
 
     const body: RequestInit['body'] = data !== null
         ? JSON.stringify(data)

@@ -78,7 +78,7 @@ export function InvolvementTab({ recordId }: Props) {
                     okText="Sim"
                     cancelText="Não"
                 >
-                    <Button danger type="text" icon={<DeleteOutlined />} />
+                    <Button danger type="text" icon={<DeleteOutlined />} aria-label="Remover vínculo" />
                 </Popconfirm>
             ),
             width: 80,
