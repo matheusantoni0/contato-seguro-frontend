@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 
 import { Button, Row, type TableColumnsType, Typography } from 'antd';
 
@@ -9,6 +9,9 @@ import type { Company } from '@domain/company/company.type';
 import { CompaniesActionsCell } from '@domain/company/components/CompaniesActionsCell';
 import { CreateCompanyModal } from '@domain/company/components/CreateCompanyModal';
 import { EditCompanyModal } from '@domain/company/components/EditCompanyModal';
+import { SearchInput } from '@domain/@shared/SearchInput';
+import { useDebounce } from '@domain/@shared/useDebounce';
+import { matchesSearch } from '@domain/@shared/string.helper';
 
 const COLUMNS: TableColumnsType<Company.Model> = [
     {
@@ -34,6 +37,9 @@ const COLUMNS: TableColumnsType<Company.Model> = [
 ];
 
 export function Companies() {
+    const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
     return (
         <CompaniesContextProvider>
             {({
@@ -42,38 +48,51 @@ export function Companies() {
                 setIsCreateModalVisible,
                 isCreateModalVisible,
                 isEditModalVisible,
-            }) => (
-                <Fragment>
-                    <main>
-                        <Row justify="space-between" align="middle">
-                            <Typography.Title level={3}>
-                                Empresas
-                            </Typography.Title>
+            }) => {
+                const filteredCompanies = useMemo(() => {
+                    return companies.filter(company =>
+                        matchesSearch(company as unknown as Record<string, unknown>, debouncedSearchTerm, ['name', 'cnpj', 'email']),
+                    );
+                }, [companies, debouncedSearchTerm]);
 
-                            <Button
-                                type="primary"
-                                onClick={() => setIsCreateModalVisible(true)}
-                            >
-                                Cadastrar
-                            </Button>
-                        </Row>
+                return (
+                    <Fragment>
+                        <main>
+                            <Row justify="space-between" align="middle">
+                                <Typography.Title level={3}>
+                                    Empresas
+                                </Typography.Title>
 
-                        <Table
-                            columns={COLUMNS}
-                            dataSource={companies}
-                            loading={isLoading}
-                        />
-                    </main>
+                                <Button
+                                    type="primary"
+                                    onClick={() => setIsCreateModalVisible(true)}
+                                >
+                                    Cadastrar
+                                </Button>
+                            </Row>
 
-                    <Show when={isCreateModalVisible}>
-                        <CreateCompanyModal />
-                    </Show>
+                            <SearchInput
+                                placeholder="Pesquisar por nome, CNPJ ou e-mail..."
+                                onChange={setSearchTerm}
+                            />
 
-                    <Show when={isEditModalVisible}>
-                        <EditCompanyModal />
-                    </Show>
-                </Fragment>
-            )}
+                            <Table
+                                columns={COLUMNS}
+                                dataSource={filteredCompanies}
+                                loading={isLoading}
+                            />
+                        </main>
+
+                        <Show when={isCreateModalVisible}>
+                            <CreateCompanyModal />
+                        </Show>
+
+                        <Show when={isEditModalVisible}>
+                            <EditCompanyModal />
+                        </Show>
+                    </Fragment>
+                );
+            }}
         </CompaniesContextProvider>
     );
 }

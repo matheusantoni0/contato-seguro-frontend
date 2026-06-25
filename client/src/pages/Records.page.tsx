@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 
 import { Button, Row, type TableColumnsType, Typography } from 'antd';
 
@@ -11,6 +11,9 @@ import { RecordsActionsCell } from '@domain/record/components/RecordsActionsCell
 import { IsAnonymousTag } from '@domain/involvement/components/IsAnonymousTag';
 import type { Record } from '@domain/record/record.type';
 import { RecordsContextProvider } from '@domain/record/Records.context';
+import { SearchInput } from '@domain/@shared/SearchInput';
+import { useDebounce } from '@domain/@shared/useDebounce';
+import { matchesSearch } from '@domain/@shared/string.helper';
 
 const STATUS_LABELS: Record<Record.Status, string> = {
     awaiting_investigation: 'Aguardando investigação',
@@ -44,6 +47,9 @@ const COLUMNS: TableColumnsType<Record.Model> = [
 ];
 
 export function Records() {
+    const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
     return (
         <CompaniesContextProvider>
             {() => (
@@ -54,38 +60,51 @@ export function Records() {
                         setIsCreateModalVisible,
                         isCreateModalVisible,
                         isEditModalVisible,
-                    }) => (
-                        <Fragment>
-                            <main>
-                                <Row justify="space-between" align="middle">
-                                    <Typography.Title level={3}>
-                                        Relatos
-                                    </Typography.Title>
+                    }) => {
+                        const filteredRecords = useMemo(() => {
+                            return records.filter(record =>
+                                matchesSearch(record as unknown as Record<string, unknown>, debouncedSearchTerm, ['id', 'title', 'status']),
+                            );
+                        }, [records, debouncedSearchTerm]);
 
-                                    <Button
-                                        type="primary"
-                                        onClick={() => setIsCreateModalVisible(true)}
-                                    >
-                                        Cadastrar
-                                    </Button>
-                                </Row>
+                        return (
+                            <Fragment>
+                                <main>
+                                    <Row justify="space-between" align="middle">
+                                        <Typography.Title level={3}>
+                                            Relatos
+                                        </Typography.Title>
 
-                                <Table
-                                    columns={COLUMNS}
-                                    dataSource={records}
-                                    loading={isLoading}
-                                />
-                            </main>
+                                        <Button
+                                            type="primary"
+                                            onClick={() => setIsCreateModalVisible(true)}
+                                        >
+                                            Cadastrar
+                                        </Button>
+                                    </Row>
 
-                            <Show when={isCreateModalVisible}>
-                                <CreateRecordModal />
-                            </Show>
+                                    <SearchInput
+                                        placeholder="Pesquisar por título, ID ou status..."
+                                        onChange={setSearchTerm}
+                                    />
 
-                            <Show when={isEditModalVisible}>
-                                <EditRecordModal />
-                            </Show>
-                        </Fragment>
-                    )}
+                                    <Table
+                                        columns={COLUMNS}
+                                        dataSource={filteredRecords}
+                                        loading={isLoading}
+                                    />
+                                </main>
+
+                                <Show when={isCreateModalVisible}>
+                                    <CreateRecordModal />
+                                </Show>
+
+                                <Show when={isEditModalVisible}>
+                                    <EditRecordModal />
+                                </Show>
+                            </Fragment>
+                        );
+                    }}
                 </RecordsContextProvider>
             )}
         </CompaniesContextProvider>

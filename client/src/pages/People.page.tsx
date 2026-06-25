@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 
 import { Button, Row, Typography } from 'antd';
 
@@ -7,8 +7,14 @@ import { CreatePersonModal } from '@domain/person/components/CreatePersonModal';
 import { EditPersonModal } from '@domain/person/components/EditPersonModal';
 import { PeopleTable } from '@domain/person/components/PeopleTable';
 import { PeopleContextProvider } from '@domain/person/People.context';
+import { SearchInput } from '@domain/@shared/SearchInput';
+import { useDebounce } from '@domain/@shared/useDebounce';
+import { matchesSearch } from '@domain/@shared/string.helper';
 
 export function People() {
+    const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
     return (
         <PeopleContextProvider>
             {({
@@ -17,37 +23,50 @@ export function People() {
                 setIsCreateModalVisible,
                 isCreateModalVisible,
                 isEditModalVisible,
-            }) => (
-                <Fragment>
-                    <main>
-                        <Row justify="space-between" align="middle">
-                            <Typography.Title level={3}>
-                                Pessoas
-                            </Typography.Title>
+            }) => {
+                const filteredPeople = useMemo(() => {
+                    return people.filter(person =>
+                        matchesSearch(person as unknown as Record<string, unknown>, debouncedSearchTerm, ['name', 'cpf', 'email']),
+                    );
+                }, [people, debouncedSearchTerm]);
 
-                            <Button
-                                type="primary"
-                                onClick={() => setIsCreateModalVisible(true)}
-                            >
-                                Cadastrar
-                            </Button>
-                        </Row>
+                return (
+                    <Fragment>
+                        <main>
+                            <Row justify="space-between" align="middle">
+                                <Typography.Title level={3}>
+                                    Pessoas
+                                </Typography.Title>
 
-                        <PeopleTable
-                            people={people}
-                            isLoading={isLoading}
-                        />
-                    </main>
+                                <Button
+                                    type="primary"
+                                    onClick={() => setIsCreateModalVisible(true)}
+                                >
+                                    Cadastrar
+                                </Button>
+                            </Row>
 
-                    <Show when={isCreateModalVisible}>
-                        <CreatePersonModal />
-                    </Show>
+                            <SearchInput
+                                placeholder="Pesquisar por nome, CPF ou e-mail..."
+                                onChange={setSearchTerm}
+                            />
 
-                    <Show when={isEditModalVisible}>
-                        <EditPersonModal />
-                    </Show>
-                </Fragment>
-            )}
+                            <PeopleTable
+                                people={filteredPeople}
+                                isLoading={isLoading}
+                            />
+                        </main>
+
+                        <Show when={isCreateModalVisible}>
+                            <CreatePersonModal />
+                        </Show>
+
+                        <Show when={isEditModalVisible}>
+                            <EditPersonModal />
+                        </Show>
+                    </Fragment>
+                );
+            }}
         </PeopleContextProvider>
     );
 }
