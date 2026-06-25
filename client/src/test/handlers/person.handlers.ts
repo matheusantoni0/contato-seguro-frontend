@@ -3,6 +3,31 @@ import { http, HttpResponse } from 'msw';
 const BASE = 'http://localhost:8080';
 
 export const personHandlers = {
+    listSuccess: () =>
+        http.get(`${BASE}/people`, () =>
+            HttpResponse.json({
+                statusCode: 200,
+                data: {
+                    people: [
+                        {
+                            id: 1,
+                            name: 'Ana Silva',
+                            cpf: '52998224725',
+                            email: 'ana@example.com',
+                            birth_date: '1990-03-15',
+                        },
+                        {
+                            id: 2,
+                            name: 'João Pedro',
+                            cpf: '12345678901',
+                            email: 'joao@example.com',
+                            birth_date: '1985-10-20',
+                        },
+                    ],
+                },
+            }),
+        ),
+
     createSuccess: () =>
         http.post(`${BASE}/people`, () =>
             HttpResponse.json(

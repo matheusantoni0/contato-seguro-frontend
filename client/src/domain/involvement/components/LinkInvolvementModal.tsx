@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
-import { App, Divider, Form, Modal, Select } from 'antd';
+import { useEffect, useState, useCallback } from 'react';
+import { App, Button, Divider, Form, Modal, Select } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { handleServiceError, hasServiceError } from '@domain/@shared/service.helper';
 import { sleep } from '@domain/@shared/sleep';
+import { normalizeString } from '@domain/@shared/string.helper';
 import { listPeople } from '@domain/person/api/list-people.service';
+import { CreatePersonModal } from '@domain/person/components/CreatePersonModal';
 import type { Person } from '@domain/person/person.type';
 import { createInvolvement } from '../api/create-involvement.service';
 import type { Involvement } from '../involvement.type';
-
 type Props = {
     recordId: number;
     isVisible: boolean;
@@ -19,31 +21,32 @@ export function LinkInvolvementModal({ recordId, isVisible, onClose, onSuccess, 
     const [isSending, setIsSending] = useState(false);
     const [people, setPeople] = useState<Person.Model[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isCreatePersonModalVisible, setIsCreatePersonModalVisible] = useState(false);
 
     const [form] = Form.useForm<Involvement.Create>();
     const app = App.useApp();
 
+    const fetchInitialData = useCallback(async (app: any, isMounted: { current: boolean }) => {
+        setIsLoading(true);
+        const response = await listPeople();
+        if (!isMounted.current) return;
+        
+        if (hasServiceError(response)) {
+            handleServiceError(app, response);
+        } else {
+            setPeople(response.data.people);
+        }
+        setIsLoading(false);
+    }, []);
+
     useEffect(() => {
         if (!isVisible) return;
         
-        let isMounted = true;
+        const isMounted = { current: true };
+        fetchInitialData(app, isMounted);
         
-        async function fetchInitialData() {
-            setIsLoading(true);
-            const response = await listPeople();
-            if (!isMounted) return;
-            
-            if (hasServiceError(response)) {
-                handleServiceError(app, response);
-            } else {
-                setPeople(response.data.people);
-            }
-            setIsLoading(false);
-        }
-
-        fetchInitialData();
-        return () => { isMounted = false; };
-    }, [isVisible, app]);
+        return () => { isMounted.current = false; };
+    }, [isVisible, app, fetchInitialData]);
 
     const onFinish = async (values: Involvement.Create) => {
         if (customSubmit) {
@@ -73,6 +76,7 @@ export function LinkInvolvementModal({ recordId, isVisible, onClose, onSuccess, 
     };
 
     return (
+        <>
         <Modal
             open={isVisible}
             title="Vincular Pessoa"
@@ -102,8 +106,25 @@ export function LinkInvolvementModal({ recordId, isVisible, onClose, onSuccess, 
                         loading={isLoading}
                         showSearch
                         placeholder="Buscar pessoa..."
-                        optionFilterProp="children"
-                        options={people.map(p => ({ label: `${p.name} - ${p.cpf}`, value: p.id }))}
+                        filterOption={(input, option) =>
+                            normalizeString(String(option?.label ?? '')).includes(normalizeString(input))
+                        }
+                        options={people.map((p: Person.Model) => ({ label: `${p.name} - ${p.cpf}`, value: p.id }))}
+                        dropdownRender={(menu) => (
+                            <>
+                                {menu}
+                                <Divider style={{ margin: '8px 0' }} />
+                                <Button
+                                    type="link"
+                                    block
+                                    icon={<PlusOutlined />}
+                                    onClick={() => setIsCreatePersonModalVisible(true)}
+                                    style={{ textAlign: 'left', padding: '4px 12px' }}
+                                >
+                                    Cadastrar nova pessoa
+                                </Button>
+                            </>
+                        )}
                     />
                 </Form.Item>
 
@@ -121,5 +142,17 @@ export function LinkInvolvementModal({ recordId, isVisible, onClose, onSuccess, 
                 </Form.Item>
             </Form>
         </Modal>
+
+        {isCreatePersonModalVisible && (
+            <CreatePersonModal
+                onClose={() => setIsCreatePersonModalVisible(false)}
+                onSuccess={() => {
+                    setIsCreatePersonModalVisible(false);
+                    app.message.success('Pessoa cadastrada com sucesso');
+                    fetchInitialData(app, { current: true });
+                }}
+            />
+        )}
+        </>
     );
 }

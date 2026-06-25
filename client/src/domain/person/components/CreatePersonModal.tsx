@@ -11,16 +11,31 @@ import { makePersonErrorMessage } from '../person.helper';
 import { usePeopleContext } from '../People.context';
 import { PersonFields, type Values } from './PersonFields';
 
-export function CreatePersonModal() {
+type Props = {
+    onClose?: () => void;
+    onSuccess?: () => void;
+};
+
+export function CreatePersonModal({ onClose, onSuccess }: Props) {
     const [isSending, setIsSending] = useState(false);
 
-    const { setIsCreateModalVisible, fetchPeople } = usePeopleContext();
+    let context: any = {};
+    try {
+        context = usePeopleContext();
+    } catch {
+        // Silently ignore context error as it might be used in standalone mode
+    }
+
+    const { setIsCreateModalVisible, fetchPeople } = context;
 
     const [form] = Form.useForm<Values>();
 
     const app = App.useApp();
 
-    const close = () => setIsCreateModalVisible(false);
+    const close = () => {
+        if (onClose) return onClose();
+        if (setIsCreateModalVisible) setIsCreateModalVisible(false);
+    };
 
     const onFinish = async (values: Values) => {
         setIsSending(true);
@@ -41,7 +56,8 @@ export function CreatePersonModal() {
             return handleServiceError(app, response, makePersonErrorMessage);
 
         close();
-        fetchPeople();
+        if (onSuccess) onSuccess();
+        if (fetchPeople) fetchPeople();
     };
 
     return (
